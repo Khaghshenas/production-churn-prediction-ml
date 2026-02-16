@@ -39,13 +39,13 @@ cd telco-churn-uplift
 ```
 
 2. Create and activate a virtual environment:
-```
+```bash
 python3 -m venv venv
 source venv/bin/activate
 ```
 
 3. Install dependencies:
-```
+```bash
 pip install -r requirements.txt
 ```
 
@@ -64,12 +64,12 @@ The churn prediction model was evaluated on a test set using probability-based a
 - **Churn Recall:** 51%, capturing over half of true churn cases.
 
 ### Confusion Matrix (Test Set)
-```text
+
 |               | Predicted No Churn | Predicted Churn |
 |---------------|-------------------|-----------------|
 | **Actual No Churn** | 927 | 106 |
 | **Actual Churn**    | 185 | 189 |
-```
+
 
 These results show  a reasonable trade-off between false positives and false negatives. The predicted churn probabilities are later used as input for uplift modeling to prioritize targeted retention strategies.
 
@@ -77,9 +77,9 @@ These results show  a reasonable trade-off between false positives and false neg
 ### Uplift Model Evaluation
 
 The uplift model predicts the incremental effect of retention actions for each customer. Sample uplift scores:
-```text
+
 [ 0.023 0.062 -0.002 -0.033 0.354 0.126 -0.017 -0.059 -0.134 0.015 ]
-```
+
 
 Evaluation on the test set:
 
