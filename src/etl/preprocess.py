@@ -11,19 +11,6 @@ TARGET_COL = "Churn"
 
 
 def load_raw_data(path: str = RAW_DATA_PATH) -> pd.DataFrame:
-    """
-    Load the raw Telco Customer Churn dataset.
-
-    Parameters
-    ----------
-    path : str
-        Path to the CSV file containing the raw dataset.
-
-    Returns
-    -------
-    pd.DataFrame
-        Raw dataset as a DataFrame.
-    """
     return pd.read_csv(path)
 
 
@@ -37,16 +24,6 @@ def clean_and_engineer(df: pd.DataFrame) -> pd.DataFrame:
     3. Create 'tenure_group' as a categorical feature.
     4. Map 'Churn' from 'No'/'Yes' to 0/1.
     5. Drop 'customerID', which is an identifier and not a feature.
-
-    Parameters
-    ----------
-    df : pd.DataFrame
-        Raw dataset.
-
-    Returns
-    -------
-    pd.DataFrame
-        Cleaned and feature-engineered dataset ready for modeling.
     """
     df = df.copy()
 
@@ -88,26 +65,6 @@ TARGET_COL = "Churn"
 def encode_features(df: pd.DataFrame, target_col: str = TARGET_COL) -> Tuple[pd.DataFrame, pd.Series]:
     """
     One-hot encode categorical features and separate features (X) from target (y).
-
-    Parameters
-    ----------
-    df : pd.DataFrame
-        Preprocessed dataset including both features and target.
-    target_col : str
-        Name of the target column.
-
-    Returns
-    -------
-    X_encoded : pd.DataFrame
-        Feature matrix with categorical variables one-hot encoded.
-    y : pd.Series
-        Target vector.
-    
-    Notes
-    -----
-    - Target column is separated as y.
-    - All remaining non-numeric columns are one-hot encoded.
-    - Drop first level to avoid dummy variable trap.
     """
     df = df.copy()
 
@@ -128,32 +85,7 @@ def split_and_save(
     test_size: float = 0.2,
     random_state: int = 42,
     ) -> Tuple[pd.DataFrame, pd.DataFrame, pd.Series, pd.Series]:
-    """
-    Split features and target into train and test sets, and save them to CSV.
-
-    Parameters
-    ----------
-    X : pd.DataFrame
-        Feature matrix.
-    y : pd.Series
-        Target vector.
-    out_dir : str
-        Directory where processed CSVs will be saved.
-    test_size : float
-        Fraction of data to use as test set.
-    random_state : int
-        Random seed for reproducibility.
-
-    Returns
-    -------
-    X_train, X_test, y_train, y_test : tuple
-        Train/test splits of features and target.
-
-    Notes
-    -----
-    - Stratified split ensures churn ratio is maintained in train/test sets.
-    - Feature column names are saved to a JSON file to preserve column order for serving or prediction pipelines.
-    """
+    
     os.makedirs(out_dir, exist_ok=True)
 
     # Split dataset
@@ -186,10 +118,6 @@ def run_full_preprocess() -> Tuple[pd.DataFrame, pd.DataFrame, pd.Series, pd.Ser
     3. Encode categorical features using one-hot encoding.
     4. Split into train/test sets and save to CSV.
 
-    Returns
-    -------
-    X_train, X_test, y_train, y_test : tuple
-        Train/test splits of features and target, saved to disk for downstream modeling.
     """
     # Step 1: Load raw data
     df_raw = load_raw_data()

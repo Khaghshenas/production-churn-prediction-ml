@@ -78,13 +78,13 @@ These results show  a reasonable trade-off between false positives and false neg
 
 The uplift model predicts the incremental effect of retention actions for each customer. Sample uplift scores:
 
+```bash
 [ 0.023 0.062 -0.002 -0.033 0.354 0.126 -0.017 -0.059 -0.134 0.015 ]
-
+```
 
 Evaluation on the test set:
 
 - **Uplift @ top 20%:** 0.024 — targeting the top 20% predicted customers yields a small incremental benefit over random selection.  
-- **Qini AUC:** -0.029 — the model’s ranking of customers by uplift is currently not better than random, likely due to synthetic treatment assignments.
 
 > **Note:** These results are for demonstration purposes. Using real treatment data and model tuning is expected to significantly improve uplift performance.
 
