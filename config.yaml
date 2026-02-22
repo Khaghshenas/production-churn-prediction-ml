@@ -1,0 +1,54 @@
+# Configuration for Telco Churn Pipeline
+paths:
+  raw_data: "data/raw/WA_Fn-UseC_-Telco-Customer-Churn.csv"
+  processed_dir: "data/processed"
+  model_dir: "models"
+  xgb_model_name: "churn_xgboost_v1.joblib"
+  mlp_model_name: "churn_mlp_v1.joblib"
+
+params:
+  target_col: "Churn"
+  test_size: 0.2
+  random_state: 42
+  numeric_features:
+    - "TotalCharges"
+    - "MonthlyCharges"
+  categorical_features:
+    - "gender"
+    - "Partner"
+    - "Dependents"
+    - "PhoneService"
+    - "MultipleLines"
+    - "InternetService"
+    - "OnlineSecurity"
+    - "OnlineBackup"
+    - "DeviceProtection"
+    - "TechSupport"
+    - "StreamingTV"
+    - "StreamingMovies"
+    - "Contract"
+    - "PaperlessBilling"
+    - "PaymentMethod"
+    - "tenure_group"
+
+# XGBoost Hyperparameters
+xgboost_params:
+  n_estimators: 500
+  max_depth: 6
+  learning_rate: 0.01
+  subsample: 0.8
+  colsample_bytree: 0.8
+  objective: "binary:logistic"
+  random_state: 42
+  eval_metric: "logloss"
+  n_jobs: -1
+
+mlp_params:
+  hidden_layer_sizes: [64, 32]
+  activation: "relu"
+  solver: "adam"
+  alpha: 0.0001
+  batch_size: "auto"
+  learning_rate_init: 0.001
+  max_iter: 300
+  random_state: 42
