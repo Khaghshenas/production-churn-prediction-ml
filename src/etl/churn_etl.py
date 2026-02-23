@@ -1,5 +1,4 @@
 import logging
-import yaml
 import joblib
 import pandas as pd
 import pandera as pa
@@ -19,10 +18,11 @@ if src_path not in sys.path:
     sys.path.append(src_path)
     
 from features.transformers import DataCleaner, TenureGrouper
+from utils.config import load_config
+from utils.config import setup_logging
 
-
-LOG_FORMAT = "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
-logging.basicConfig(level=logging.INFO, format=LOG_FORMAT)
+# Logging Setup
+setup_logging()
 logger = logging.getLogger(__name__)
 
 # Schema Validation
@@ -67,36 +67,6 @@ def build_preprocessing_pipeline(cat_cols, num_cols, target_col):
     ])
     
     return full_pipeline
-
-# Load Configurations
-def load_config(config_path: str = "config.yaml") -> dict:
-
-    file_path = Path(config_path)
-
-    if not file_path.exists():
-        logger.error(f"Configuration file not found at: {file_path}")
-        raise FileNotFoundError(f"Expected config.yaml at {file_path.absolute()}")
-
-    try:
-        with open(file_path, "r") as f:
-            config = yaml.safe_load(f)
-            
-        logger.info(f"Configuration loaded successfully from {config_path}")
-        
-        # Basic structure validation
-        required_keys = ['paths', 'params']
-        if not all(key in config for key in required_keys):
-            missing = [k for k in required_keys if k not in config]
-            raise KeyError(f"Missing top-level keys in config: {missing}")
-            
-        return config
-
-    except yaml.YAMLError as e:
-        logger.error(f"Error parsing YAML file: {e}")
-        raise
-    except Exception as e:
-        logger.error(f"Unexpected error loading config: {e}")
-        raise
 
 def run_etl():
     config = load_config()
