@@ -24,6 +24,7 @@ logger = logging.getLogger(__name__)
 def run_training_pipeline():
     config = load_config()
     processed_dir = Path(config['paths']['processed_dir'])
+    model_dir = Path(config['paths']['model_dir'])
     
     # 1. Load Data
     # Note: We load the RAW-ish split data because the Pipeline will handle transformation
@@ -34,7 +35,7 @@ def run_training_pipeline():
     y_test = pd.read_csv(processed_dir / "y_test.csv").squeeze()
 
     # 2. Load the Preprocessor artifact created in churn_etl
-    preprocessor_path = processed_dir / "preprocessor_pipeline.joblib"
+    preprocessor_path = model_dir / "preprocessor_pipeline.joblib"
     if not preprocessor_path.exists():
         raise FileNotFoundError(f"Preprocessor not found at {preprocessor_path}. Run ETL first.")
 

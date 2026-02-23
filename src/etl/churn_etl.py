@@ -123,10 +123,12 @@ def run_etl():
 
     # 5. Save artifacts
     out_dir = Path(config['paths']['processed_dir'])
+    model_dir = Path(config['paths']['model_dir'])
     out_dir.mkdir(parents=True, exist_ok=True)
+    model_dir.mkdir(parents=True, exist_ok=True)
     
     # Save the whole pipeline.
-    joblib.dump(pipeline, out_dir / "preprocessor_pipeline.joblib")
+    joblib.dump(pipeline, model_dir / "preprocessor_pipeline.joblib")
     
     # Save data for modeling
     pd.DataFrame(X_train_proc).to_csv(out_dir / "X_train_proc.csv", index=False)
