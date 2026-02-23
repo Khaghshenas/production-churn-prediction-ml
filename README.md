@@ -1,4 +1,4 @@
-# Telco Churn and Uplift Modeling
+# Telco Churn Prediction and Uplift Modeling
 
 A machine learning pipeline for predicting customer churn and estimating the incremental impact of retention actions, using the Telco Customer Churn dataset.
 
@@ -15,19 +15,37 @@ The uplift modeling step builds on the churn predictions to identify customers f
 
 ```text
 telco-churn-uplift/
-├── models/ # Saved model artifacts
-├── notebooks/
-│   └── churn_uplift_analysis.ipynb
-├── src/ 
-│   ├── etl/
-│   ├── models/
-│   └── serve/
-├── Dockerfile
-├── requirements.txt
-├── .gitignore
-└── README.md
-*Note:* The dataset is not included in the repository and must be downloaded and placed in the `data/` directory.
+├── data/
+│   ├── raw/                
+│   └── processed/          
+├── models/                             # Inference artifacts (ignored by Git, mounted via Docker)
+│   ├── preprocessor_pipeline.joblib    # Full ETL pipeline: engineering, transformations, scaling, & encoding
+│   ├── xgboost_v1.joblib               # End-to-End Pipeline: Preprocessing + Trained XGBoost Classifier
+│   └── mlp_v1.joblib                   # End-to-End Pipeline: Preprocessing + Trained MLP Classifier
+├── notebooks/              
+├── src/                   
+│   ├── etl/                
+│   ├── features/           # Custom Sklearn Transformer classes
+│   ├── models/             # Training scripts
+│   ├── serve/              # FastAPI application and prediction service
+│   └── utils/              # Logging and config loader functions
+├── tests/                  
+├── config.yaml             # Global configuration (paths, parameters, hyperparameters, feature lists)
+├── Dockerfile              # Optimized multi-layer build for CPU-only inference
+├── .dockerignore           
+├── .gitignore              
+├── requirements.txt        
+├── LICENSE                 
+└── README.md               
 ```
+## Data Setup
+The raw dataset is not included in this repository. To run the pipeline:
+1. **Download**: Get the dataset from [Kaggle](https://www.kaggle.com/datasets/blastchar/telco-customer-churn) and place the ```WA_Fn-UseC_-Telco-Customer-Churn.csv``` file in ```data/raw/```.
+2. **Run ETL**: Execute the script to generate train/test splits:
+```bash
+python src/etl/churn_etl.py
+``` 
+3. **Data Flow**: We use the **raw** train/test splits for modeling. This prevents **Data Leakage**, as our **End-to-End Pipelines** handle all transformations internally during both training and inference.
 
 ## Usage (Local Setup)
 
