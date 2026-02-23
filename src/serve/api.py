@@ -1,67 +1,53 @@
-import json
-import joblib
-import pandas as pd
-from fastapi import FastAPI
-from pydantic import BaseModel
-import os
+import sys
+import logging
+from pathlib import Path
+from fastapi import FastAPI, HTTPException, Body
 
-MODEL_PATH = "models/churn_model.joblib"
-FEATURE_COLUMNS_PATH = "data/processed/feature_columns.json"
+# Add root to path
+root_path = Path(__file__).resolve().parent.parent.parent
+if str(root_path) not in sys.path:
+    sys.path.append(str(root_path))
 
-app = FastAPI(title="Telco Churn Prediction API")
+from src.serve.predict import load_pipeline, make_prediction
+from src.utils.config import setup_logging
 
+# Setup
+setup_logging()
+logger = logging.getLogger(__name__)
+app = FastAPI(
+    title="Telco Churn Prediction API",
+    description="API for predicting customer churn using XGBoost and MLP models.",
+    version="1.0.0"
+)
 
-# ---------- Load model + feature columns ----------
+# Model Cache
+models = {}
 
-model = joblib.load(MODEL_PATH)
+@app.on_event("startup")
+async def startup_event():
+    """Load models once when the server starts."""
+    try:
+        models["xgboost"] = load_pipeline("xgboost")
+        models["mlp"] = load_pipeline("mlp")
+        logger.info("Models loaded successfully.")
+    except Exception as e:
+        logger.error(f"Startup failed: {e}")
 
-with open(FEATURE_COLUMNS_PATH, "r") as f:
-    feature_columns = json.load(f)
-
-
-# ---------- Request Schema ----------
-
-class CustomerFeatures(BaseModel):
-    features: dict   # raw feature input from client
-
-
-# ---------- Internal helper: preprocess input ----------
-
-def preprocess_input(features: dict) -> pd.DataFrame:
-    """
-    Convert incoming feature dict into a DataFrame,
-    perform one-hot encoding, and align with training columns.
-    """
-    df = pd.DataFrame([features])
-
-    # One-hot encode
-    df = pd.get_dummies(df, drop_first=True)
-
-    # Add missing columns from training
-    for col in feature_columns:
-        if col not in df.columns:
-            df[col] = 0
-
-    # Keep only training columns and ordering
-    df = df[feature_columns]
-
-    return df
-
-
-# ---------- Main Prediction Endpoint ----------
-
-@app.post("/predict")
-def predict(request: CustomerFeatures):
-    df = preprocess_input(request.features)
-    proba = model.predict_proba(df)[0, 1]
+@app.post("/predict/{model_type}")
+async def predict(model_type: str, data: list = Body(...)):
     
-    return {
-        "churn_probability": float(proba)
-    }
+    # Check model
+    if model_type not in models:
+        raise HTTPException(status_code=404, detail="Model not found")
 
+    # Predict
+    try:
+        results = make_prediction(data, models[model_type])
+        return {"model": model_type, "results": results}
+    except Exception as e:
+        logger.error(f"Prediction Error: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
 
-# ---------- Root Endpoint ----------
-
-@app.get("/")
-def home():
-    return {"message": "Telco Churn Prediction API is running."}
+@app.get("/health")
+def health():
+    return {"status": "ok", "loaded_models": list(models.keys())}
