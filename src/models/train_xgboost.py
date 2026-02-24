@@ -7,7 +7,7 @@ import sys
 
 from xgboost import XGBClassifier
 from sklearn.pipeline import Pipeline
-from sklearn.metrics import roc_auc_score, classification_report
+from sklearn.metrics import precision_score, recall_score, f1_score, roc_auc_score
 
 src_path = str(Path(__file__).parent.parent)
 if src_path not in sys.path:
@@ -65,10 +65,22 @@ def run_training_pipeline():
     full_pipeline.fit(X_train, y_train)
     logger.info(f"Full pipeline trained in {time.time() - start:.2f} seconds.")
 
-    # 6. Evaluate
+    # 6. Evaluation
     preds_proba = full_pipeline.predict_proba(X_test)[:, 1]
+    preds = (preds_proba >= 0.5).astype(int)
+
+    precision = precision_score(y_test, preds)
+    recall = recall_score(y_test, preds)
+    f1 = f1_score(y_test, preds)
     auc = roc_auc_score(y_test, preds_proba)
-    logger.info(f"Evaluation Complete. ROC AUC: {auc:.4f}")
+
+    logger.info(
+        f"Evaluation Complete | "
+        f"Precision: {precision:.4f} | "
+        f"Recall: {recall:.4f} | "
+        f"F1-Score: {f1:.4f} | "
+        f"ROC-AUC: {auc:.4f}"
+    )
     
     # 7. Save the Complete Production Artifact
     model_dir = Path(config['paths']['model_dir'])
