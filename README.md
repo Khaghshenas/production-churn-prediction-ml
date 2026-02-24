@@ -94,9 +94,11 @@ uvicorn src.serve.api:app --reload --port 8000
 Once the service is running, open [http://127.0.0.1:8000/docs](http://127.0.0.1:8000/docs)
  in your browser. The Swagger UI lets you send test JSON payloads to the models and view churn probabilities in real time:
  
- ![API Prediction Demo: Request Body](docs/images/api_request_body.png?raw=true)
+ ![API Prediction Demo: Request Body](docs/images/api_request_body.png)
 
- ![Response Body](docs/images/api_response_body.png?raw=true)
+ ![Response Body XGBoost](docs/images/api_response_body_xgboost.png)
+
+  ![Response Body MLP](docs/images/api_response_body_mlp.png)
 
 ## Evaluation Results
 ## Churn Prediction
