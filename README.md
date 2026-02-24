@@ -103,22 +103,26 @@ Once the service is running, open [http://127.0.0.1:8000/docs](http://127.0.0.1:
 ## Evaluation Results
 ## Churn Prediction
 
-The churn prediction model was evaluated on a test set using probability-based and classification metrics.
+We evaluated both the XGBoost and MLP models using the held-out test set ($20\%$ of the raw data). Because telco churn is a classic imbalanced classification problem, we focused on metrics that penalize false negatives and false positives.
 
-- **ROC-AUC:** **0.82**, indicating strong discrimination between churners and non-churners.
-- **Accuracy:** 79% on the test set.
-- **Churn Precision:** 64%, meaning that nearly two-thirds of customers predicted as churners actually churned.
-- **Churn Recall:** 51%, capturing over half of true churn cases.
+| Model     | Precision | Recall | F1-Score | ROC-AUC | Training Time (s) |
+|-----------|-----------|--------|----------|---------|-------------------|
+| XGBoost   | 0.6523    | 0.5267 | 0.5828   | 0.8407  | 0.37              |
+| MLP       | 0.5091    | 0.5989 | 0.5504   | 0.7710  | 4.18              |
 
-### Confusion Matrix (Test Set)
+The results show a fairly typical pattern when comparing tree-based models and neural networks on tabular data.
 
-|               | Predicted No Churn | Predicted Churn |
-|---------------|-------------------|-----------------|
-| **Actual No Churn** | 927 | 106 |
-| **Actual Churn**    | 185 | 189 |
+- **XGBoost as the stronger overall model**
 
+XGBoost performs better across most metrics, with a higher ROC-AUC (0.84) and F1-score (0.58). It’s also more precise, which means fewer false positives. In practical terms, this reduces the risk of offering incentives to customers who weren’t likely to churn in the first place — an important consideration when retention has real costs.
 
-These results show  a reasonable trade-off between false positives and false negatives. The predicted churn probabilities are later used as input for uplift modeling to prioritize targeted retention strategies.
+- **MLP prioritizes recall**
+
+MLP achieves the highest recall (0.60), meaning it captures more of the actual churners. If the business prioritizes minimizing missed churn cases — for example, when customer lifetime value is high — this behavior can be desirable. The trade-off is lower precision and overall weaker discrimination compared to XGBoost.
+
+- **Training efficiency**
+
+There is also a noticeable gap in training time. XGBoost trained about 11× faster than the MLP. For this tabular dataset, tree-based methods not only perform better but also train significantly faster, making XGBoost the more practical choice for experimentation and iteration.
 
 ## Uplift Modeling
 ### Uplift Model Evaluation
