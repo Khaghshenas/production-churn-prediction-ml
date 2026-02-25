@@ -30,8 +30,8 @@ Thumbs.db
 data/
 
 # Model artifacts
-*.joblib
-*.pkl
+#*.joblib
+#*.pkl
 
 # YAML config backup or temp files
 *.yaml~
