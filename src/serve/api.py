@@ -29,6 +29,7 @@ async def startup_event():
     try:
         models["xgboost"] = load_pipeline("xgboost")
         models["mlp"] = load_pipeline("mlp")
+        models["uplift"] = load_pipeline("uplift")
         logger.info("Models loaded successfully.")
     except Exception as e:
         logger.error(f"Startup failed: {e}")
@@ -42,7 +43,7 @@ async def predict(model_type: str, data: list = Body(...)):
 
     # Predict
     try:
-        results = make_prediction(data, models[model_type])
+        results = make_prediction(data, models[model_type], models['uplift'])
         return {"model": model_type, "results": results}
     except Exception as e:
         logger.error(f"Prediction Error: {e}")

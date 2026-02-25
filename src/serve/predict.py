@@ -36,22 +36,31 @@ def load_pipeline(model_type: str = "xgboost") -> joblib.load:
     logger.info(f"Loading {model_type} pipeline...")
     return joblib.load(model_dir / model_name)
 
-def make_prediction(data: Union[pd.DataFrame, List[Dict]], pipeline) -> List[Dict]:
+def make_prediction(data: Union[pd.DataFrame, List[Dict]], pipeline, uplift_pipeline=None) -> List[Dict]:
 
     # Convert list of dicts to DataFrame if necessary
     if isinstance(data, list):
         df = pd.DataFrame(data)
 
-    # Inference
+    # Inference - churn prediction
     predictions = pipeline.predict(df)
     probabilities = pipeline.predict_proba(df)[:, 1]
 
+    # Inference - Uplift predictions (if provided)
+    # This calls our TwoModelUplift.predict() which we set as p_control - p_treat
+    uplift_scores = uplift_pipeline.predict(df) if uplift_pipeline else [None] * len(df)
+
     results = []
-    for pred, prob in zip(predictions, probabilities):
-        results.append({
+    for pred, prob, uplift in zip(predictions, probabilities, uplift_scores):
+        res = {
             "churn_prediction": "Yes" if pred == 1 else "No",
             "churn_probability": round(float(prob), 4)
-        })
+        }
+        if uplift is not None:
+            res["uplift_score"] = round(float(uplift), 4)
+            res["recommendation"] = "High Priority" if uplift > 0.05 else "Standard"
+        
+        results.append(res)
         
     return results
 
@@ -59,8 +68,11 @@ def make_prediction(data: Union[pd.DataFrame, List[Dict]], pipeline) -> List[Dic
 if __name__ == "__main__":
 
     # Load the model pipeline
-    pipeline = load_pipeline("mlp")
+    model_pipeline = load_pipeline("mlp")
     
+    # Load the uplif pipeline
+    uplift_pipeline = load_pipeline("uplift")
+
     # Two sample raw data points (No preprocessing applied yet!)
     sample_customers = [
         {
@@ -105,8 +117,10 @@ if __name__ == "__main__":
         }
     ]
     
-    # Predict
-    results = make_prediction(sample_customers, pipeline)
-    print("\n=== Prediction Results ===")
+    # Inference
+    results = make_prediction(sample_customers, model_pipeline, uplift_pipeline)
+    logger.info("Final Inference Results:")
     for idx, res in enumerate(results):
-        print(f"Customer {idx+1}: {res}")
+        logger.info(f"Customer {idx+1}:")
+        for key, value in res.items():
+            logger.info(f"  {key.replace('_', ' ').title()}: {value}")
