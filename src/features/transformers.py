@@ -1,7 +1,6 @@
 import pandas as pd
 from sklearn.base import BaseEstimator, TransformerMixin
 
-
 # Custom transformers created for preprocessing steps
 class DataCleaner(BaseEstimator, TransformerMixin):
     """Basic cleaning that doesn't require 'fitting' (e.g. dropping columns)."""

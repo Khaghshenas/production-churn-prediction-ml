@@ -3,11 +3,6 @@ import logging
 from pathlib import Path
 from fastapi import FastAPI, HTTPException, Body
 
-# Add root to path
-root_path = Path(__file__).resolve().parent.parent.parent
-if str(root_path) not in sys.path:
-    sys.path.append(str(root_path))
-
 from src.serve.predict import load_pipeline, make_prediction
 from src.utils.config import setup_logging
 

@@ -9,13 +9,9 @@ from xgboost import XGBClassifier
 from sklearn.pipeline import Pipeline
 from sklearn.metrics import precision_score, recall_score, f1_score, roc_auc_score
 
-src_path = str(Path(__file__).parent.parent)
-if src_path not in sys.path:
-    sys.path.append(src_path)
-
-from features.transformers import DataCleaner, TenureGrouper
-from utils.config import load_config
-from utils.config import setup_logging
+from src.features.transformers import DataCleaner, TenureGrouper
+from src.utils.config import load_config
+from src.utils.config import setup_logging
 
 # Logging Setup
 setup_logging()

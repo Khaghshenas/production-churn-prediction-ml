@@ -42,7 +42,7 @@ telco-churn-uplift/
 │   ├── models/             # Training scripts
 │   ├── serve/              # FastAPI application and prediction service
 │   └── utils/              # Logging and config loader functions
-├── tests/                  
+├── docs/images                  
 ├── config.yaml             # Global configuration (paths, parameters, hyperparameters, feature lists)
 ├── Dockerfile              # Optimized multi-layer build for CPU-only inference
 ├── .dockerignore           
@@ -62,8 +62,8 @@ First, clone the repo and set up a virtual environment to keep your global Pytho
 ```bash
 git clone https://github.com/Khaghshenas/telco-churn-uplift.git
 cd telco-churn-uplift
-python3 -m venv venv  # python -m venv .venv-rag in Windows
-source venv/bin/activate # .venv-rag\Scripts\Activate.ps1 in Windows (PowerShell)
+python3 -m venv venv  # python -m venv venv in Windows
+source venv/bin/activate # venv\Scripts\Activate.ps1 in Windows (PowerShell)
 pip install -r requirements.txt
 ```
 
@@ -73,7 +73,7 @@ The raw dataset is not included in this repository. To run the pipeline:
 - First Download the dataset from [Kaggle](https://www.kaggle.com/datasets/blastchar/telco-customer-churn) and place the ```WA_Fn-UseC_-Telco-Customer-Churn.csv``` file in ```data/raw/```.
 - Then Run the ETL script to generate train/test splits in ```data/processed/```:
 ```bash
-python src/etl/churn_etl.py
+python -m src.etl.churn_etl
 ``` 
 
 **3. Training & Inference**
@@ -82,13 +82,13 @@ Once your data is ready, you have a few ways to interact with the models:
 
 - **Retrain models**: If you want to experiment with different architectures, hyperparameters or updated data, you can trigger the training pipelines for all models. These scripts will automatically save the new end-to-end ```.joblib``` artifacts to the ```models/``` directory. 
 ```bash
-python src/models/train_xgboost.py
-python src/models/train_mlp.py
-python src/models/train_uplift.py
+python -m src.models.train_xgboost
+python -m src.models.train_mlp
+python -m src.models.train_uplift
 ```
-- **CLI Inference**: To test the pipeline without starting the web service, you can run the prediction script directly. This is the fastest way to verify that your custom transformers and paths are working correctly.
+- **CLI Inference**: To test the pipeline without starting the web service, you can run the prediction script directly. This is the fastest way to verify that the custom transformers and paths are working correctly.
 ```bash
-python src/serve/predict.py
+python -m src.serve.predict
 ```
 - **Start the FastAPI Service**: For production-style testing, run the API. You can use ```--reload``` so that any changes you make to the source code are reflected immediately.
 ```bash
@@ -102,6 +102,27 @@ Once the service is running, open [http://127.0.0.1:8000/docs](http://127.0.0.1:
  ![Response Body XGBoost](docs/images/api_response_body_xgboost.png)
 
   ![Response Body MLP](docs/images/api_response_body_mlp.png)
+
+**4. Docker Deployment**
+
+This project can also be deployed inside a Docker container for reproducible inference.
+
+- **Build the Docker Image**: From the project root directory, build the Docker image:
+```bash
+docker build -t telco-churn-uplift-api .
+```
+
+- **Run the Docker Container**:
+```bash
+docker run -p 8000:8000 telco-churn-uplift-api
+```
+This exposes the inference service on port 8000.
+
+- **Stop the Container**:
+```bash
+docker ps
+docker stop <container_id>
+```
 
 ## Evaluation Results
 ## Churn Prediction

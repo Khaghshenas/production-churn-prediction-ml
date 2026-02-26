@@ -15,13 +15,9 @@ from sklift.metrics import uplift_at_k, qini_auc_score, qini_curve
 from sklift.metrics import qini_curve
 
 
-src_path = str(Path(__file__).parent.parent)
-if src_path not in sys.path:
-    sys.path.append(src_path)
-
-from utils.config import load_config
-from utils.config import setup_logging
-from models.uplift_models import TwoModelUplift
+from src.utils.config import load_config
+from src.utils.config import setup_logging
+from src.models.uplift_models import TwoModelUplift
 
 # Logging Setup
 setup_logging()

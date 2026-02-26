@@ -12,14 +12,10 @@ from sklearn.pipeline import Pipeline
 from sklearn.compose import ColumnTransformer
 from sklearn.impute import SimpleImputer
 from sklearn.preprocessing import OneHotEncoder, StandardScaler
-
-src_path = str(Path(__file__).parent.parent)
-if src_path not in sys.path:
-    sys.path.append(src_path)
     
-from features.transformers import DataCleaner, TenureGrouper
-from utils.config import load_config
-from utils.config import setup_logging
+from src.features.transformers import DataCleaner, TenureGrouper
+from src.utils.config import load_config
+from src.utils.config import setup_logging
 
 # Logging Setup
 setup_logging()
