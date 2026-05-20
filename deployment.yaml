@@ -1,0 +1,20 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: churn-uplift-app
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: churn-uplift
+  template:
+    metadata:
+      labels:
+        app: churn-uplift
+    spec:
+      containers:
+        - name: churn-uplift
+          image: churn-api_v7:latest
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 8000

@@ -6,6 +6,8 @@ from fastapi import FastAPI, HTTPException, Body
 from src.serve.predict import load_pipeline, make_prediction
 from src.utils.config import setup_logging
 
+import socket
+
 # Setup
 setup_logging()
 logger = logging.getLogger(__name__)
@@ -47,3 +49,7 @@ async def predict(model_type: str, data: list = Body(...)):
 @app.get("/health")
 def health():
     return {"status": "ok", "loaded_models": list(models.keys())}
+
+@app.get("/")
+def root():
+    return {"pod": socket.gethostname()}

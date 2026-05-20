@@ -44,7 +44,9 @@ telco-churn-uplift/
 │   └── utils/              # Logging and config loader functions
 ├── docs/images                  
 ├── config.yaml             # Global configuration (paths, parameters, hyperparameters, feature lists)
-├── Dockerfile              # Optimized multi-layer build for CPU-only inference
+├── Dockerfile              # Multi-layer Docker build for packaging inference API and dependencies
+├── deployment.yaml         # Kubernetes deployment: runs application containers (Pods)
+├── service.yaml            # Kubernetes service: exposes Pods as a stable network endpoint
 ├── .dockerignore           
 ├── .gitignore              
 ├── requirements.txt        
@@ -103,25 +105,41 @@ Once the service is running, open [http://127.0.0.1:8000/docs](http://127.0.0.1:
 
   ![Response Body MLP](docs/images/api_response_body_mlp.png)
 
-**4. Docker Deployment**
+**4. Deployment (Docker & Kubernetes)**
 
-This project can also be deployed inside a Docker container for reproducible inference.
+This project can be deployed in a Docker container for reproducible inference. It can also be deployed on Kubernetes to enable container orchestration, scaling, and service management. The setup described below assumes a local Kubernetes cluster (e.g., Docker Desktop’s Kubernetes).
 
 - **Build the Docker Image**: From the project root directory, build the Docker image:
 ```bash
 docker build -t telco-churn-uplift-api .
 ```
 
-- **Run the Docker Container**:
+- **Run the Container**
 ```bash
 docker run -p 8000:8000 telco-churn-uplift-api
 ```
 This exposes the inference service on port 8000.
 
-- **Stop the Container**:
+- **Kubernetes Deployment (Local Cluster)**
+
+Ensure Kubernetes is running:
 ```bash
-docker ps
-docker stop <container_id>
+kubectl get nodes
+```
+
+Then deploy the application:
+```bash
+kubectl apply -f deployment.yaml
+kubectl apply -f service.yaml
+```
+You can verify deployment by:
+```bash
+kubectl get pods
+kubectl get services
+```
+Finally to access API run:
+```bash
+kubectl port-forward service/churn-uplift-service 8000:8000
 ```
 
 ## Evaluation Results
