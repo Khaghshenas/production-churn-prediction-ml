@@ -75,7 +75,7 @@ The raw dataset is not included in this repository. To run the pipeline:
 - First Download the dataset from [Kaggle](https://www.kaggle.com/datasets/blastchar/telco-customer-churn) and place the ```WA_Fn-UseC_-Telco-Customer-Churn.csv``` file in ```data/raw/```.
 - Then Run the ETL script to generate train/test splits in ```data/processed/```:
 ```bash
-python -m src.etl.churn_etl
+python -m training.etl.churn_etl
 ``` 
 
 **3. Training & Inference**
@@ -84,17 +84,17 @@ Once your data is ready, you have a few ways to interact with the models:
 
 - **Retrain models**: If you want to experiment with different architectures, hyperparameters or updated data, you can trigger the training pipelines for all models. These scripts will automatically save the new end-to-end ```.joblib``` artifacts to the ```models/``` directory. 
 ```bash
-python -m src.models.train_xgboost
-python -m src.models.train_mlp
-python -m src.models.train_uplift
+python -m training.models.train_xgboost
+python -m training.models.train_mlp
+python -m training.models.train_uplift
 ```
 - **CLI Inference**: To test the pipeline without starting the web service, you can run the prediction script directly. This is the fastest way to verify that the custom transformers and paths are working correctly.
 ```bash
-python -m src.serve.predict
+python -m training.serve.predict
 ```
 - **Start the FastAPI Service**: For production-style testing, run the API. You can use ```--reload``` so that any changes you make to the source code are reflected immediately.
 ```bash
-uvicorn src.serve.api:app --reload --port 8000
+uvicorn app.api:app --reload --port 8000
 ```
 Once the service is running, open [http://127.0.0.1:8000/docs](http://127.0.0.1:8000/docs)
  in your browser. The Swagger UI lets you send test JSON payloads to the models and view churn probabilities and uplift score in real time:

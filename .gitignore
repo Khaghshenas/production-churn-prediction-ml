@@ -12,6 +12,7 @@ ENV/
 
 # Jupyter Notebook checkpoints
 .ipynb_checkpoints
+notebooks/
 
 # Virtual environments
 .env/
@@ -44,3 +45,6 @@ data/
 *.sublime-workspace
 *.swp
 *.swo
+
+# AWS
+telco-churn-key.pem
