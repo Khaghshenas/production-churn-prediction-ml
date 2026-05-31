@@ -1,50 +1,100 @@
-# Telco Churn Prediction Service and Uplift Modeling
+# Customer Churn Prediction and Uplift Modeling Platform
 
-This repository implements an **End-to-End Machine Learning Service** designed to predict customer churn and to optimize customer retention in the telecommunications setting. The goal is not just to train a churn prediction model, but also to build a deployable system that can identify at-risk customers and support targeted retention strategies through **uplift modeling**.
+An **end-to-end machine learning platform** for predicting customer churn and optimizing customer retention strategies in the telecommunications domain. The project goes beyond traditional churn prediction with uplift modeling to identify not only customers who are likely to leave, but also those most likely to respond positively to retention interventions.
 
-The core of this repository is a **FastAPI** service that serves a unified inference pipeline. This pipeline exposes two trained models for customer churn prediction: an **XGBoost** classifier and a **Multi-Layer Perceptron (MLP)**—paired with a custom T-Learner Uplift Model. All models are wrapped in **custom scikit-learn pipelines**, allowing them to accept raw input data and produce predictions in a consistent way. This ensures that the same preprocessing logic used during training is also applied at inference time, avoiding training-serving mismatches.
+The platform provides a production-oriented inference service built with **FastAPI** and exposes a unified prediction pipeline capable of serving two ML models; **XGBoost** and **Multi-Layer Perceptron (MLP)**—along with a custom T-Learner uplift model for estimating the causal impact of retention campaigns.
 
-The project combines two complementary components:
+### Key Capabilities
 
-- **Churn Prediction** using two supervised models (XGBoost and MLP) trained on historical customer data, including demographics, contract information, and usage behavior. The output is the probability that a customer will churn.
+- Predicts the probability that a customer will leave the service using scikit-learn-based pipelines with XGBoost and MLP models trained on historical customer data, including demographics, contract information, and usage behavior.
+- Incorporates uplift modeling to estimate the incremental effect of retention interventions, in order to identify persuadable customers who are likely to remain only if targeted with incentives, thereby optimizing marketing and retention efforts.
+- Includes end-to-end ML pipelines for data preprocessing, training, evaluation, and inference.
+- Provides a FastAPI-based REST service for real-time churn prediction.
+- Ensures leakage-proof pipeline design with unified preprocessing to maintain consistency between training and inference. 
+- Supports cloud-native deployment using Docker and Kubernetes, enabling scalable and production-like model serving.
+- Uses centralized configuration via config.yaml for hyperparameters, paths, and feature management.
+- Follows a modular architecture designed for scalable model serving and future MLOps extensions.
 
-- **Uplift Modeling** on top of churn prediction to estimates the **incremental effect of retention interventions**. Instead of simply identifying high-risk customers, this approach helps identify persuadable customers — those who are likely to stay only if given an incentive. This allows marketing efforts to focus on customers where intervention has measurable impact.
+This project demonstrates the development of a complete applied ML system, covering data engineering, model development, API deployment, and production-oriented software engineering practices.
 
+## Architecture
 
-## Key Features
-- **Structured Pipeline Architecture**:
-    - **ETL Pipeline**: A dedicated ETL workflow for ingesting and cleaning raw data, and creating reproducible raw/processed splits.
-    - **End-to-End Inference Pipelines**: Separate, fully-encapsulated inference pipelines for both XGBoost and MLP models. These artifacts take raw data as input and output predictions.
-    - **End-to-End Uplift Pipeline**: A fully encapsulated Two-Model uplift architecture built with XGBoost for both treatment and control groups. The pipeline internally splits data by treatment flag (created synthetically), trains separate XGBoost models, and outputs an uplift score defined as the difference between predicted treatment and control probabilities. All preprocessing, feature engineering, and model inference are handled within a single unified pipeline object.
-    - **Leakage-Proof Data Flow**: Models are trained on raw splits. By handling all transformations internally within the pipeline, we ensure zero data leakage and total parity between training and inference.
-- **Feature Engineering**: Leveraged a mix of built-in scikit-learn transformers and custom Python classes, designed to integrate cleanly with the sklearn API.
-- **Production-Oriented Engineering**: 
-    - Dockerized deployment using a lightweight Python 3.11 slim, optimized for CPU inference to achieve a lightweight image (< 1GB).
-    - Carefully managed requirements.txt to ensure consistency between local development and production.
-    - Centralized configuration through a **config.yaml** file for managing paths, hyperparameters, and feature definitions without modifying core code.
+The platform follows a modular architecture that separates data preparation, model training, and model serving.
 
-## Project Structure
+```text
+                     ┌─────────────────┐
+                     │   Raw Dataset   │
+                     └────────┬────────┘
+                              │
+                              ▼
+                     ┌─────────────────┐
+                     │   ETL Pipeline  │
+                     │ Cleaning &      │
+                     │ Validation &    │
+                     │ Train/Test Split│
+                     └────────┬────────┘
+                              │
+        ┌─────────────────────┼─────────────────────┐
+        │                     │                     │
+        ▼                     ▼                     ▼
+┌────────────────┐  ┌────────────────┐  ┌────────────────┐
+│ XGBoost Model  │  │   MLP Model    │  │ Uplift Model   │
+│ Churn Pipeline │  │ Churn Pipeline │  │  (T-Learner)   │
+└────────┬───────┘  └────────┬───────┘  └────────┬───────┘
+         │                   │                   │
+         └──────────┬────────┴──────────┬────────┘
+                    │                   │
+                    ▼                   ▼
+             ┌────────────────────────────┐
+             │ Serialized Pipeline Models │
+             └─────────────┬──────────────┘
+                           │
+                           ▼
+                 ┌──────────────────┐
+                 │ FastAPI Service  │
+                 └────────┬─────────┘
+                          │
+                          ▼
+                ┌────────────────────┐
+                │ Prediction Endpoint│
+                │ /predict           │
+                └────────────────────┘
+```
+
+### Components
+
+* **ETL Pipeline** – Ingests raw customer data, performs validation and cleaning, and generates reproducible training and testing datasets.
+* **Churn Prediction Models** – XGBoost and MLP models trained to estimate customer churn probability.
+* **Uplift Model** – T-Learner architecture used to estimate the incremental effect of retention interventions and identify persuadable customers.
+* **Model Pipelines** – Fully encapsulated scikit-learn pipelines that combine preprocessing, feature engineering, and prediction logic.
+* **FastAPI Service** – REST API exposing trained models through a unified inference interface.
+* **Docker Deployment** – Containerized runtime environment for reproducible deployment and consistent execution across environments.
+
+This architecture ensures reproducible training, leakage-resistant data processing, and consistent model behavior across development and deployment environments.
+
+## Repository Structure
 
 ```text
 telco-churn-uplift/
 ├── data/
 │   ├── raw/                
 │   └── processed/          
-├── models/                             # Inference artifacts (ignored by Git, mounted via Docker)
-│   ├── preprocessor_pipeline.joblib    # Full ETL pipeline: engineering, transformations, scaling, & encoding
-│   ├── xgboost_v1.joblib               # End-to-End Pipeline: Preprocessing + Trained XGBoost Classifier
-│   ├── mlp_v1.joblib                   # End-to-End Pipeline: Preprocessing + Trained MLP Classifier
-│   └── uplift_v1.joblib                   # End-to-End Pipeline: Preprocessing + Trained MLP Classifier
-├── notebooks/              
-├── src/                   
+├── models/                             # inference artifacts
+│   ├── preprocessor_pipeline.joblib    # full ETL pipeline: engineering, transformations, scaling, & encoding
+│   ├── xgboost_v1.joblib               # end-to-end pipeline: preprocessing + trained XGBoost classifier
+│   ├── mlp_v1.joblib                   # end-to-end pipeline: preprocessing + trained MLP classifier
+│   └── uplift_v1.joblib                # end-to-end pipeline: preprocessing + trained MLP classifier              
+├── training/                   
 │   ├── etl/                
-│   ├── features/           # Custom Sklearn Transformer classes
-│   ├── models/             # Training scripts
-│   ├── serve/              # FastAPI application and prediction service
-│   └── utils/              # Logging and config loader functions
+│   ├── features/           # custom Sklearn transformer classes
+│   ├── models/             # training scripts
+│   └── utils/              # logging and config loader functions
+│   app/              
+│   ├── api.py              # FastAPI application and prediction service
+│   └── predict.py 
 ├── docs/images                  
-├── config.yaml             # Global configuration (paths, parameters, hyperparameters, feature lists)
-├── Dockerfile              # Multi-layer Docker build for packaging inference API and dependencies
+├── config.yaml             # global configuration (paths, parameters, hyperparameters, feature lists)
+├── Dockerfile              # multi-layer Docker build for packaging inference API and dependencies
 ├── deployment.yaml         # Kubernetes deployment: runs application containers (Pods)
 ├── service.yaml            # Kubernetes service: exposes Pods as a stable network endpoint
 ├── .dockerignore           
@@ -54,7 +104,11 @@ telco-churn-uplift/
 └── README.md 
 ```
 
-## Usage (Local Setup)
+## Model Development
+
+## API Usage
+
+## Local Setup
 To get the project up and running locally, follow these steps in order.
 
 **1. Environment Setup** 
