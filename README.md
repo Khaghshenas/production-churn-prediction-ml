@@ -1,3 +1,4 @@
+![CI](https://github.com/Khaghshenas/production-churn-prediction-ml/actions/workflows/ci.yml/badge.svg)
 # Customer Churn Prediction and Uplift Modeling Platform
 
 An **end-to-end machine learning platform** for predicting customer churn and optimizing customer retention strategies in the telecommunications domain. The project goes beyond traditional churn prediction with uplift modeling to identify not only customers who are likely to leave, but also those most likely to respond positively to retention interventions.
@@ -36,38 +37,41 @@ The platform follows a modular architecture that separates data preparation, mod
                      └────────┬────────┘
                               │
                               ▼
-                     ┌─────────────────┐
-                     │   ETL Pipeline  │
-                     │ Cleaning &      │
-                     │ Validation &    │
-                     │ Train/Test Split│
-                     └────────┬────────┘
-                              │
+                     ┌─────────────────────┐
+                     │   ETL Pipeline      │
+                     │- Cleaning           │
+                     │- Feature Engineering│
+                     │- Train/Test Split   │
+                     └────────┬────────────┘
+                        Training Pipeline      
         ┌─────────────────────┼───────────────────┐
         │                     │                   │
         ▼                     ▼                   ▼
-┌────────────────┐  ┌───────────────┐  ┌────────────────┐
-│ XGBoost Model  │  │   MLP Model   │  │ Uplift Model   │
-│    Pipeline    │  │    Pipeline   │  │  (T-Learner)   │
-└────────┬───────┘  └────────┬──────┘  └────────┬───────┘
+┌────────────────┐  ┌───────────────┐  ┌───────────────────┐
+│ XGBoost Model  │  │   MLP Model   │  │ Uplift (T-Learner)│
+└────────┬───────┘  └────────┬──────┘  └────────┬──────────┘
          │                   │                   │
          └──────────┬────────┴──────────┬────────┘
                     │                   │
                     ▼                   ▼
-             ┌────────────────────────────┐
-             │ Serialized Pipeline Models │
-             └─────────────┬──────────────┘
-                           │
-                           ▼
-                 ┌──────────────────┐
-                 │ FastAPI Service  │
-                 └────────┬─────────┘
-                          │
-                          ▼
-                ┌────────────────────┐
-                │ Prediction Endpoint│
-                │ /predict           │
-                └────────────────────┘
+                 ┌─────────────────────────┐
+                 │ Serialized Artifacts    │
+                 │ (.joblib pipelines)     │
+                 │ preprocessing + models  │
+                 └─────────────┬───────────┘
+                               │
+                               ▼
+                   ┌─────────────────────┐
+                   │ FastAPI Service     │
+                   │  /predict           │
+                   │(churn and targeting)│
+                   └───────────┬─────────┘
+                               │
+                               ▼
+              ┌─────────────────────────────────┐
+              │     API Responses               │
+              │ churn probability / uplift score│
+              └─────────────────────────────────┘
 ```
 
 ### Components
@@ -160,6 +164,13 @@ Finally to access API run:
 ```bash
 kubectl port-forward service/churn-uplift-service 8000:8000
 ```
+## CI/CD
+The project uses GitHub Actions to run:
+- unit tests
+- import validation
+- model loading sanity checks
+
+on every push and pull request.
 
 ## Local Setup
 To get the project up and running locally, follow these steps in order.

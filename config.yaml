@@ -29,7 +29,7 @@ params:
     - "PaperlessBilling"
     - "PaymentMethod"
     - "tenure_group"
-  xgboost_model_name: "churn_xgboost_v1.joblib"
+  xgboost_model_name: "churn_xgboost_v3.joblib"
   mlp_model_name: "churn_mlp_v1.joblib"
   uplift_model_name: "uplift_v1.joblib"
 
