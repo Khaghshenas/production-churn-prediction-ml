@@ -8,8 +8,7 @@ class TwoModelUplift(BaseEstimator, ClassifierMixin):
     def fit(self, X, y, treatment=None):
         
         if treatment is None:
-            treatment = assign_synthetic_treatment(X)
-        
+            raise ValueError("treatment must be provided.")
         # Split data
         X_treat = X[treatment == 1]
         y_treat = y[treatment == 1]

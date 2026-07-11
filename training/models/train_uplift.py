@@ -3,27 +3,22 @@ import joblib
 import pandas as pd
 import time
 from pathlib import Path
-import sys
 import numpy as np
 import matplotlib.pyplot as plt
 
 from xgboost import XGBClassifier
 from sklearn.pipeline import Pipeline
-from sklearn.preprocessing import StandardScaler
-from sklearn.ensemble import RandomForestClassifier
 from sklift.metrics import uplift_at_k, qini_auc_score, qini_curve
-from sklift.metrics import qini_curve
 
 
-from training.utils.config import load_config
-from training.utils.config import setup_logging
+from training.utils.config import load_config, setup_logging
 from training.models.uplift_models import TwoModelUplift
 
 # Logging Setup
 setup_logging()
 logger = logging.getLogger(__name__)
 
-def assign_synthetic_treatment(X: pd.DataFrame, seed: int = 42) -> tuple[pd.DataFrame, np.ndarray]:
+def assign_synthetic_treatment(X: pd.DataFrame, seed: int = 42) -> np.ndarray:
     """
     Randomly assign a synthetic treatment for uplift modeling.
 
@@ -75,7 +70,7 @@ def run_uplift_pipeline() -> tuple[pd.Series, pd.Series, pd.Series, dict]:
     model_dir = Path(config['paths']['model_dir'])
 
     # 1. Load Data
-    # Note: We load the RAW-ish split data because the Pipeline will handle transformation
+    # We load the RAW split data because the Pipeline will handle transformation
     logger.info("Loading data for training...")
     X_train = pd.read_csv(processed_dir / "X_train_raw.csv")
     X_test = pd.read_csv(processed_dir / "X_test_raw.csv")
