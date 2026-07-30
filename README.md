@@ -1,4 +1,6 @@
 ![CI](https://github.com/Khaghshenas/production-churn-prediction-ml/actions/workflows/ci.yml/badge.svg)
+[![DOI](https://zenodo.org/badge/1107674922.svg)](https://doi.org/10.5281/zenodo.21702862)
+
 # Customer Churn Prediction and Uplift Modeling Platform
 
 An **end-to-end machine learning platform** for predicting customer churn and optimizing customer retention strategies in the telecommunications domain. The project goes beyond traditional churn prediction with uplift modeling to identify not only customers who are likely to leave, but also those most likely to respond positively to retention interventions.
